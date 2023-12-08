@@ -80,7 +80,8 @@ class Predictor(BasePredictor):
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             size = resize_(image)
-            control_image.resize(size)
+            image = image.resize(size)
+            control_image = control_image.resize(size)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
@@ -101,7 +102,7 @@ def resize_(image) -> tuple[int, int]:
     w = image.width
     h = image.height
 
-    if h < 1024 and w < 1024:
+    if h < 512 and w < 512:
         if h % 8 == 0 and w % 8 == 0:
             return w, h
         w = w - (w % 8)
@@ -109,7 +110,7 @@ def resize_(image) -> tuple[int, int]:
         return w, h
 
     while True:
-        if h < 256 and w < 256:
+        if h < 512 and w < 512:
             if h % 8 == 0 and w % 8 == 0:
                 return w, h
             w = w - (w % 8)
