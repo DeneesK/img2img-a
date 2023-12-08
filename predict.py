@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler, ControlNetModel, StableDiffusionControlNetPipeline.
+from diffusers import LCMScheduler, ControlNetModel, StableDiffusionControlNetPipeline
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
 
