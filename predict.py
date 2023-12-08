@@ -5,8 +5,9 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler
+from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler, ControlNetModel, StableDiffusionControlNetPipeline.
 import torch  # noqa
+from controlnet_aux import OpenposeDetector
 
 from diffusers.utils import load_image  # noqa
 
@@ -25,9 +26,12 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         adapter_id = "latent-consistency/lcm-lora-sdv1-5"
-        self.pipeline = StableDiffusionImg2ImgPipeline.from_single_file(
+        checkpoint = "lllyasviel/control_v11p_sd15_openpose"
+        controlnet = ControlNetModel.from_pretrained(checkpoint, torch_dtype=torch.float16)
+        self.pipeline = StableDiffusionControlNetPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
-            torch_dtype=torch.float16, use_safetensors=True
+            torch_dtype=torch.float16, use_safetensors=True,
+            controlnet=controlnet
         )
         self.pipeline.enable_model_cpu_offload()
         self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
@@ -60,7 +64,9 @@ class Predictor(BasePredictor):
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
-            init_image = load_image(str(image))
+            processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+            control_image = processor(image, hand_and_face=True)
+            control_image.save("./control.png")
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -69,7 +75,7 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
-                                  image=init_image,
+                                  image=control_image,
                                   eta=1.0,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
