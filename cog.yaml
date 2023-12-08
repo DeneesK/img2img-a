@@ -6,8 +6,8 @@ build:
     - "libgl1-mesa-glx"
     - "libglib2.0-0"
   python_packages:
-    - "diffusers==0.20.2"
-    - "torchvision==0.15.2"
+    - "diffusers"
+    - "torchvision"
     - "transformers"
     - "accelerate"
     - "Pillow"
