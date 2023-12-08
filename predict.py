@@ -44,7 +44,6 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -74,7 +73,8 @@ class Predictor(BasePredictor):
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
-            control_image = self.processor(image, hand_and_face=True)
+            processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+            control_image = processor(image, hand_and_face=True)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
