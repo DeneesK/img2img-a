@@ -83,9 +83,7 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
-                                  image=image,
-                                  control_image=control_image,
-                                  eta=1.0,
+                                  image=control_image,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
