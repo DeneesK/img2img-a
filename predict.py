@@ -82,6 +82,7 @@ class Predictor(BasePredictor):
             size = resize_(image)
             image = image.resize(size)
             control_image = control_image.resize(size)
+            self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
@@ -102,7 +103,7 @@ def resize_(image) -> tuple[int, int]:
     w = image.width
     h = image.height
 
-    if h < 512 and w < 512:
+    if h < 1024 and w < 1024:
         if h % 8 == 0 and w % 8 == 0:
             return w, h
         w = w - (w % 8)
@@ -110,7 +111,7 @@ def resize_(image) -> tuple[int, int]:
         return w, h
 
     while True:
-        if h < 512 and w < 512:
+        if h < 1024 and w < 1024:
             if h % 8 == 0 and w % 8 == 0:
                 return w, h
             w = w - (w % 8)
