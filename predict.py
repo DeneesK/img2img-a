@@ -65,9 +65,9 @@ class Predictor(BasePredictor):
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
+            image = load_image(str(image))
             processor: OpenposeDetector = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            control_image = processor(str(image), hand_and_face=True)
-            control_image.save("./control.png")
+            control_image = processor(image, hand_and_face=True)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
