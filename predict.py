@@ -25,7 +25,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = StableDiffusionImg2ImgPipeline.from_single_file(
-            "Timmek/anime_world/anime_world_by_Timmek.safetensors",
+            "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True
         )
         self.pipeline.enable_model_cpu_offload()
