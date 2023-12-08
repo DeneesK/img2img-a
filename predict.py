@@ -27,7 +27,8 @@ class Predictor(BasePredictor):
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
-        controlnet = ControlNetModel.from_pretrained(checkpoint, torch_dtype=torch.float16)
+        controlnet = ControlNetModel.from_pretrained(checkpoint,
+                                                     torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
@@ -65,7 +66,7 @@ class Predictor(BasePredictor):
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            control_image = processor(image, hand_and_face=True)
+            control_image = processor(str(image), hand_and_face=True)
             control_image.save("./control.png")
             if not seed:
                 seed = random.randint(0, 99999)
