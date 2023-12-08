@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import LCMScheduler, StableDiffusionImg2ImgPipeline
+from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler
 import torch  # noqa
 
 from diffusers.utils import load_image  # noqa
@@ -46,7 +46,7 @@ class Predictor(BasePredictor):
                           default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=31
+            default=4
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
