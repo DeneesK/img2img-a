@@ -36,9 +36,9 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        checkpoint = "lllyasviel/control_v11p_sd15_openpose"
-        controlnet = ControlNetModel.from_pretrained(checkpoint,
-                                                     torch_dtype=torch.float16)
+        controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11f1p_sd15_depth",
+                                                     torch_dtype=torch.float16,
+                                                     use_safetensors=True)
         self.pipeline = StableDiffusionControlNetPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
