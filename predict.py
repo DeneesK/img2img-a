@@ -79,8 +79,9 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
+            size = resize_(image)
+            control_image.resize(size)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
@@ -94,3 +95,25 @@ class Predictor(BasePredictor):
             return out_path
         except Exception as ex:
             print(ex)
+
+
+def resize_(image) -> tuple[int, int]:
+    w = image.width
+    h = image.height
+
+    if h < 1024 and w < 1024:
+        if h % 8 == 0 and w % 8 == 0:
+            return w, h
+        w = w - (w % 8)
+        h = h - (h % 8)
+        return w, h
+
+    while True:
+        if h < 1024 and w < 1024:
+            if h % 8 == 0 and w % 8 == 0:
+                return w, h
+            w = w - (w % 8)
+            h = h - (h % 8)
+            return w, h
+        h = int(h / 2)
+        w = int(w / 2)
