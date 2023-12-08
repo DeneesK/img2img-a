@@ -8,6 +8,8 @@ from cog import BasePredictor, Input, Path  # noqa
 from diffusers import LCMScheduler, ControlNetModel, StableDiffusionControlNetPipeline
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
+from transformers import pipeline
+import numpy as np
 
 from diffusers.utils import load_image  # noqa
 
@@ -18,6 +20,16 @@ def disabled_safety_checker(images, clip_input):
         return images, [False]*num_images
     else:
         return images, False
+
+
+def get_depth_map(image, depth_estimator):
+    image = depth_estimator(image)["depth"]
+    image = np.array(image)
+    image = image[:, :, None]
+    image = np.concatenate([image, image, image], axis=2)
+    detected_map = torch.from_numpy(image).float() / 255.0
+    depth_map = detected_map.permute(2, 0, 1)
+    return depth_map
 
 
 class Predictor(BasePredictor):
@@ -66,8 +78,8 @@ class Predictor(BasePredictor):
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
-            processor: OpenposeDetector = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            control_image = processor(image, hand_and_face=True)
+            depth_estimator = pipeline("depth-estimation")
+            depth_map = get_depth_map(image, depth_estimator).unsqueeze(0).half().to("cuda")
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -76,7 +88,8 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
-                                  image=control_image,
+                                  image=image,
+                                  control_image=depth_map,
                                   eta=1.0,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
