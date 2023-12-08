@@ -65,7 +65,7 @@ class Predictor(BasePredictor):
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
-            processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+            processor: OpenposeDetector = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             control_image = processor(str(image), hand_and_face=True)
             control_image.save("./control.png")
             if not seed:
