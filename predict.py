@@ -5,9 +5,8 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import LCMScheduler, ControlNetModel, StableDiffusionControlNetPipeline
+from diffusers import UniPCMultistepScheduler, ControlNetModel, StableDiffusionControlNetPipeline
 import torch  # noqa
-from controlnet_aux import OpenposeDetector
 from transformers import pipeline
 import numpy as np
 
@@ -37,7 +36,6 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
         controlnet = ControlNetModel.from_pretrained(checkpoint,
                                                      torch_dtype=torch.float16)
@@ -47,9 +45,7 @@ class Predictor(BasePredictor):
             controlnet=controlnet
         )
         self.pipeline.enable_model_cpu_offload()
-        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
-        self.pipeline.load_lora_weights(adapter_id)
-        self.pipeline.fuse_lora()
+        self.pipeline.scheduler = UniPCMultistepScheduler.from_config(self.pipeline.scheduler.config)
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
