@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
 import numpy as np
@@ -37,6 +37,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
+        adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         controlnet = ControlNetModel.from_pretrained(checkpoint,
                                                      torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
@@ -44,6 +45,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
+        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.load_lora_weights(adapter_id)
+        self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
