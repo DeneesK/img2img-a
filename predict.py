@@ -5,9 +5,9 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import UniPCMultistepScheduler, ControlNetModel, StableDiffusionControlNetPipeline
+from diffusers import ControlNetModel, StableDiffusionControlNetPipeline
 import torch  # noqa
-from transformers import pipeline
+from controlnet_aux import OpenposeDetector
 import numpy as np
 
 from diffusers.utils import load_image  # noqa
@@ -36,16 +36,16 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11f1p_sd15_depth",
-                                                     torch_dtype=torch.float16,
-                                                     use_safetensors=True)
+        checkpoint = "lllyasviel/control_v11p_sd15_openpose"
+        controlnet = ControlNetModel.from_pretrained(checkpoint,
+                                                     torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
+        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.enable_model_cpu_offload()
-        self.pipeline.scheduler = UniPCMultistepScheduler.from_config(self.pipeline.scheduler.config)
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
@@ -74,8 +74,7 @@ class Predictor(BasePredictor):
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
-            depth_estimator = pipeline("depth-estimation")
-            depth_map = get_depth_map(image, depth_estimator).unsqueeze(0).half().to("cuda")
+            control_image = self.processor(image, hand_and_face=True)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -85,7 +84,7 @@ class Predictor(BasePredictor):
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
-                                  control_image=depth_map,
+                                  control_image=control_image,
                                   eta=1.0,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
