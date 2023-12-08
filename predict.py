@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetPipeline
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
 import numpy as np
@@ -39,7 +39,7 @@ class Predictor(BasePredictor):
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
         controlnet = ControlNetModel.from_pretrained(checkpoint,
                                                      torch_dtype=torch.float16)
-        self.pipeline = StableDiffusionControlNetPipeline.from_single_file(
+        self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
@@ -83,7 +83,8 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
-                                  image=control_image,
+                                  image=image,
+                                  control_image=control_image,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
