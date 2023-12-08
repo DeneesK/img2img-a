@@ -109,7 +109,7 @@ def resize_(image) -> tuple[int, int]:
         return w, h
 
     while True:
-        if h < 1024 and w < 1024:
+        if h < 256 and w < 256:
             if h % 8 == 0 and w % 8 == 0:
                 return w, h
             w = w - (w % 8)
