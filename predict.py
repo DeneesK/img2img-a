@@ -59,7 +59,7 @@ class Predictor(BasePredictor):
                           default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=4
+            default=31
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
