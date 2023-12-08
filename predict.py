@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionImg2ImgPipeline
+from diffusers import LCMScheduler, StableDiffusionImg2ImgPipeline
 import torch  # noqa
 
 from diffusers.utils import load_image  # noqa
@@ -24,11 +24,15 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         self.pipeline = StableDiffusionImg2ImgPipeline.from_single_file(
             "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
             torch_dtype=torch.float16, use_safetensors=True
         )
         self.pipeline.enable_model_cpu_offload()
+        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.load_lora_weights(adapter_id)
+        self.pipeline.fuse_lora()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
