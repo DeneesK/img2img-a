@@ -7,7 +7,7 @@ import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
-from controlnet_aux import OpenposeDetector, CannyDetector, PidiNetDetector
+from controlnet_aux import OpenposeDetector, CannyDetector, PidiNetDetector, HEDdetector
 
 from diffusers.utils import load_image, make_image_grid  # noqa
 
@@ -98,7 +98,7 @@ class Predictor(BasePredictor):
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators', filename='main/ControlNetHED.pth')
+            processor2: HEDdetector = HEDdetector.from_pretrained('lllyasviel/ControlNet')
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')            
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
