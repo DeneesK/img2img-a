@@ -51,14 +51,14 @@ class Predictor(BasePredictor):
         self,
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt",
-                            default='A photo of a person, (anime style, colourful), cartoon'),
+                            default='A photo of a person, (((2D anime style)), colourful), (anime screencap, ghibli, mappa, anime style), (clear face), detailed'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='easynegative, (bad-hands-5: 0.5)'),  # noqa
+                                     default='((3D)), render, ((watercolour, blurry)), ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), (fused fingers), (too many fingers), (((long neck)))'),  # noqa
         seed: int = Input(description="input seed",
                           default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=31
+            default=61
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
@@ -66,7 +66,7 @@ class Predictor(BasePredictor):
         ),
         strength: float = Input(
             description="input strength",
-            default=0.7
+            default=0.6
         ),
         controlnet_conditioning_scale: float = Input(
             description="""input controlnet_conditioning_scale, GENERAL,
