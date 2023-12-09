@@ -26,17 +26,17 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
-        adapter_id = "latent-consistency/lcm-lora-sdv1-5"
+        # adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         controlnet = ControlNetModel.from_pretrained(checkpoint,
                                                      torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
-            "https://huggingface.co/Timmek/anime_world/blob/main/anime_world_by_Timmek.safetensors",
+            "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
-        self.pipeline.load_lora_weights(adapter_id)
-        self.pipeline.fuse_lora()
+        # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        # self.pipeline.load_lora_weights(adapter_id)
+        # self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -44,7 +44,7 @@ class Predictor(BasePredictor):
         self,
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt",
-                            default='anime style'),
+                            default='A photo of a person, (anime style, colourful), cartoon'),
         negative_prompt: str = Input(description="input negative_prompt",
                                      default='easynegative, (bad-hands-5: 0.5)'),  # noqa
         seed: int = Input(description="input seed",
