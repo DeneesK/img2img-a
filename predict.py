@@ -31,7 +31,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
             )
         controlnet2 = ControlNetModel.from_pretrained(
-            "lllyasviel/sd-controlnet-canny",
+            "lllyasviel/control_v11p_sd15_scribble",
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
