@@ -98,7 +98,7 @@ class Predictor(BasePredictor):
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('llyasviel/Annotators', filename='Annotators/table5_pidinet.pth')
+            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators', filename='ControlNetHED.pth')
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')            
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
