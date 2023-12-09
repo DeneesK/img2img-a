@@ -7,7 +7,7 @@ import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
-from controlnet_aux import OpenposeDetector, CannyDetector
+from controlnet_aux import OpenposeDetector, CannyDetector, PidiNetDetector
 
 from diffusers.utils import load_image, make_image_grid  # noqa
 
@@ -84,25 +84,30 @@ class Predictor(BasePredictor):
             description="input control_guidance_start, GENERAL. The percentage of total steps at which the ControlNet stops applying.",
             default=1.0
         ),
-        low_threshold: int = Input(
-            description="input FOR CANNY",
-            default=100
+        # low_threshold: int = Input(
+        #     description="input FOR CANNY",
+        #     default=100
+        # ),
+        # high_threshold: int = Input(
+        #     description="input FOR CANNY",
+        #     default=200
+        # )
+        scribble: bool = Input(
+            description="""
+            scribble bool
+            """,
+            default=True
         ),
-        high_threshold: int = Input(
-            description="input FOR CANNY",
-            default=200
-        )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: CannyDetector = CannyDetector()
+            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
             control_image = processor(image, hand_and_face=True)
             control_image2 = processor2(image,
-                                        low_threshold=low_threshold,
-                                        high_threshold=high_threshold)
+                                        scribble=scribble)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
