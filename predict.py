@@ -68,15 +68,20 @@ class Predictor(BasePredictor):
             default=0.7
         ),
         controlnet_conditioning_scale: float = Input(
-            description="input controlnet_conditioning_scale, GENERAL",
+            description="""input controlnet_conditioning_scale, GENERAL,
+                The outputs of the ControlNet are multiplied by `controlnet_conditioning_scale` before they are added
+                to the residual in the original `unet`. If multiple ControlNets are specified in `init`, you can set
+                the corresponding scale as a list.""",
             default=0.8
         ),
         control_guidance_start: float = Input(
-            description="input control_guidance_start, GENERAL",
+            description="""input control_guidance_start, GENERAL
+            The percentage of total steps at which the ControlNet starts applying.
+            """,
             default=0.0
         ),
         control_guidance_end: float = Input(
-            description="input control_guidance_start, GENERAL",
+            description="input control_guidance_start, GENERAL. The percentage of total steps at which the ControlNet stops applying.",
             default=1.0
         ),
         low_threshold: int = Input(
