@@ -110,7 +110,7 @@ class Predictor(BasePredictor):
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image2 = processor2(image, scribble=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            control_image3 = processor3(image)
+            control_image3 = processor3(image, min_confidence=min_confidence)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
