@@ -7,7 +7,7 @@ import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
-from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
+from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector, MediapipeFaceDetector
 
 from diffusers.utils import load_image, make_image_grid  # noqa
 
@@ -34,7 +34,8 @@ class Predictor(BasePredictor):
             "lllyasviel/control_v11p_sd15_scribble",
             torch_dtype=torch.float16
         )
-        controlnet = [controlnet1, controlnet2]
+        controlnet3 = ControlNetModel.from_pretrained("CrucibleAI/ControlNetMediaPipeFace", subfolder="diffusion_sd15")
+        controlnet = [controlnet1, controlnet2, controlnet3]
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
@@ -99,11 +100,13 @@ class Predictor(BasePredictor):
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             processor2: PidiNetDetector = HEDdetector.from_pretrained('lllyasviel/Annotators')
+            processor3: MediapipeFaceDetector = MediapipeFaceDetector(image)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image2 = processor2(image, scribble=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            control_image3 = processor3(image)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -112,13 +115,15 @@ class Predictor(BasePredictor):
             image = image.resize(size)
             control_image = control_image.resize(size)
             control_image2 = control_image2.resize(size)
+            control_image3 = control_image3.resize(size)
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
                                   control_image=[control_image,
-                                                 control_image2],
+                                                 control_image2,
+                                                 control_image3],
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
@@ -129,7 +134,8 @@ class Predictor(BasePredictor):
                                   ).images[0]
             make_image_grid([image,
                              control_image,
-                             control_image2], rows=1, cols=3).save(out_path)
+                             control_image2,
+                             control_image3], rows=1, cols=4).save(out_path)
             return out_path
         except Exception as ex:
             print(ex)
