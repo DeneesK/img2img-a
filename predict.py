@@ -25,7 +25,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        # adapter_id = "latent-consistency/lcm-lora-sdv1-5"
+        adapter_id = "latent-consistency/lcm-lora-sdv1-5"
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
@@ -40,9 +40,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
-        # self.pipeline.load_lora_weights(adapter_id)
-        # self.pipeline.fuse_lora()
+        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.load_lora_weights(adapter_id)
+        self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
