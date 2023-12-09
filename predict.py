@@ -73,7 +73,7 @@ class Predictor(BasePredictor):
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2 = CannyDetector.from_pretrained('lllyasviel/ControlNet')
+            processor2: CannyDetector = CannyDetector()
             control_image = processor(image, hand_and_face=True)
             control_image2 = processor2(image)
             if not seed:
