@@ -31,7 +31,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
             )
         controlnet2 = ControlNetModel.from_pretrained(
-            "lllyasviel/control_v11p_sd15_scribble",
+            "lllyasviel/sd-controlnet-hed",
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
@@ -96,7 +96,7 @@ class Predictor(BasePredictor):
             description="""
             scribble bool
             """,
-            default=True
+            default=False
         ),
     ) -> Path:
         """Run a single prediction on the model"""
@@ -104,7 +104,7 @@ class Predictor(BasePredictor):
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/ControlNet')
             control_image = processor(image, hand_and_face=True)
             control_image2 = processor2(image,
                                         scribble=scribble)
