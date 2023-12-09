@@ -8,7 +8,6 @@ from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
-import numpy as np
 
 from diffusers.utils import load_image  # noqa
 
@@ -19,16 +18,6 @@ def disabled_safety_checker(images, clip_input):
         return images, [False]*num_images
     else:
         return images, False
-
-
-def get_depth_map(image, depth_estimator):
-    image = depth_estimator(image)["depth"]
-    image = np.array(image)
-    image = image[:, :, None]
-    image = np.concatenate([image, image, image], axis=2)
-    detected_map = torch.from_numpy(image).float() / 255.0
-    depth_map = detected_map.permute(2, 0, 1)
-    return depth_map
 
 
 class Predictor(BasePredictor):
