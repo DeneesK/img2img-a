@@ -40,9 +40,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
-        # self.pipeline.load_lora_weights(adapter_id)
-        # self.pipeline.fuse_lora()
+        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.load_lora_weights(adapter_id)
+        self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
