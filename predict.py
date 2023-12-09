@@ -92,22 +92,18 @@ class Predictor(BasePredictor):
         #     description="input FOR CANNY",
         #     default=200
         # )
-        scribble: bool = Input(
-            description="""
-            scribble bool
-            """,
-            default=False
-        ),
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/ControlNet', filename='models/control_sd15_hed.pth')
+            processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')            
             control_image = processor(image, hand_and_face=True)
-            control_image2 = processor2(image,
-                                        scribble=scribble)
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            control_image2 = processor2(image)
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
