@@ -18,9 +18,6 @@ def disabled_safety_checker(images, clip_input):
         return images, [False]*num_images
     else:
         return images, False
-    
-        control_guidance_start: Union[float, List[float]] = 0.0,
-        control_guidance_end: Union[float, List[float]] = 1.0,
 
 
 class Predictor(BasePredictor):
@@ -43,9 +40,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
-        self.pipeline.load_lora_weights(adapter_id)
-        self.pipeline.fuse_lora()
+        # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
+        # self.pipeline.load_lora_weights(adapter_id)
+        # self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
