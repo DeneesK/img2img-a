@@ -36,7 +36,7 @@ class Predictor(BasePredictor):
         )
         controlnet = [controlnet1, controlnet2]
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
-            "dream-lcm.safetensors",
+            "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
