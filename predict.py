@@ -100,7 +100,7 @@ class Predictor(BasePredictor):
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             processor2: PidiNetDetector = HEDdetector.from_pretrained('lllyasviel/Annotators')
-            processor3: MediapipeFaceDetector = MediapipeFaceDetector(image)
+            processor3: MediapipeFaceDetector = MediapipeFaceDetector()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
