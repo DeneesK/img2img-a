@@ -85,6 +85,10 @@ class Predictor(BasePredictor):
             description="input control_guidance_start, GENERAL. The percentage of total steps at which the ControlNet stops applying.",
             default=1.0
         ),
+        min_confidence: float = Input(
+            description="input face_detect",
+            default=0.1
+        ),
         # low_threshold: int = Input(
         #     description="input FOR CANNY",
         #     default=100
