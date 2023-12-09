@@ -6,6 +6,7 @@ sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
+from diffusers import StableDiffusionMultiControlNetPipeline
 import torch  # noqa
 from controlnet_aux import OpenposeDetector
 
@@ -27,8 +28,12 @@ class Predictor(BasePredictor):
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         checkpoint = "lllyasviel/control_v11p_sd15_openpose"
         # adapter_id = "latent-consistency/lcm-lora-sdv1-5"
-        controlnet = ControlNetModel.from_pretrained(checkpoint,
+        controlnet1 = ControlNetModel.from_pretrained(checkpoint,
                                                      torch_dtype=torch.float16)
+        controlnet2 = ControlNetModel.from_pretrained(
+            "lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16
+        )
+        controlnet = [controlnet1, controlnet2]
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
@@ -51,7 +56,7 @@ class Predictor(BasePredictor):
                           default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=6
+            default=31
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
@@ -59,7 +64,7 @@ class Predictor(BasePredictor):
         ),
         strength: float = Input(
             description="input strength",
-            default=0.8
+            default=0.6
         )
     ) -> Path:
         """Run a single prediction on the model"""
