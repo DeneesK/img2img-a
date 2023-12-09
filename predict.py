@@ -31,7 +31,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
             )
         controlnet2 = ControlNetModel.from_pretrained(
-            "lllyasviel/sd-controlnet-hed",
+            "lllyasviel/control_v11p_sd15_scribble",
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
@@ -99,10 +99,10 @@ class Predictor(BasePredictor):
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             processor2: PidiNetDetector = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
-            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')            
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            control_image2 = processor2(image)
+            control_image2 = processor2(image, scribble=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             if not seed:
                 seed = random.randint(0, 99999)
