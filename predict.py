@@ -65,7 +65,7 @@ class Predictor(BasePredictor):
         ),
         strength: float = Input(
             description="input strength",
-            default=0.6
+            default=0.7
         )
     ) -> Path:
         """Run a single prediction on the model"""
