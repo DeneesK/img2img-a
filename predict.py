@@ -18,6 +18,9 @@ def disabled_safety_checker(images, clip_input):
         return images, [False]*num_images
     else:
         return images, False
+    
+        control_guidance_start: Union[float, List[float]] = 0.0,
+        control_guidance_end: Union[float, List[float]] = 1.0,
 
 
 class Predictor(BasePredictor):
@@ -66,6 +69,26 @@ class Predictor(BasePredictor):
         strength: float = Input(
             description="input strength",
             default=0.7
+        ),
+        controlnet_conditioning_scale: float = Input(
+            description="input controlnet_conditioning_scale, GENERAL",
+            default=0.8
+        ),
+        control_guidance_start: float = Input(
+            description="input control_guidance_start, GENERAL",
+            default=0.0
+        ),
+        control_guidance_end: float = Input(
+            description="input control_guidance_start, GENERAL",
+            default=1.0
+        ),
+        low_threshold: int = Input(
+            description="input FOR CANNY",
+            default=100
+        ),
+        high_threshold: int = Input(
+            description="input FOR CANNY",
+            default=200
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -75,7 +98,9 @@ class Predictor(BasePredictor):
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             processor2: CannyDetector = CannyDetector()
             control_image = processor(image, hand_and_face=True)
-            control_image2 = processor2(image)
+            control_image2 = processor2(image,
+                                        low_threshold=low_threshold,
+                                        high_threshold=high_threshold)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -95,6 +120,9 @@ class Predictor(BasePredictor):
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
                                   strength=strength,
+                                  control_guidance_start=control_guidance_start,
+                                  control_guidance_end=control_guidance_end,
+                                  controlnet_conditioning_scale=controlnet_conditioning_scale
                                   ).images[0]
             image.save(out_path)
             return out_path
