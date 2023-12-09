@@ -9,7 +9,7 @@ from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline,
 import torch  # noqa
 from controlnet_aux import OpenposeDetector, CannyDetector
 
-from diffusers.utils import load_image  # noqa
+from diffusers.utils import load_image, make_image_grid  # noqa
 
 
 def disabled_safety_checker(images, clip_input):
@@ -126,7 +126,9 @@ class Predictor(BasePredictor):
                                   control_guidance_end=control_guidance_end,
                                   controlnet_conditioning_scale=controlnet_conditioning_scale
                                   ).images[0]
-            image.save(out_path)
+            make_image_grid([image,
+                             control_image,
+                             control_image2], rows=1, cols=3).save(out_path)
             return out_path
         except Exception as ex:
             print(ex)
