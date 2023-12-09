@@ -83,6 +83,7 @@ class Predictor(BasePredictor):
             size = resize_(image)
             image = image.resize(size)
             control_image = control_image.resize(size)
+            control_image2 = control_image2.resize(size)
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
