@@ -7,7 +7,7 @@ import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
 import torch  # noqa
-from controlnet_aux import OpenposeDetector
+from controlnet_aux import OpenposeDetector, CannyDetector
 
 from diffusers.utils import load_image  # noqa
 
@@ -73,7 +73,9 @@ class Predictor(BasePredictor):
         try:
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+            processor2 = CannyDetector.from_pretrained('lllyasviel/ControlNet')
             control_image = processor(image, hand_and_face=True)
+            control_image2 = processor2(image)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -86,7 +88,8 @@ class Predictor(BasePredictor):
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
-                                  control_image=control_image,
+                                  control_image=[control_image,
+                                                 control_image2],
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
