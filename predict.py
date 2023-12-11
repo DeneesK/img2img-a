@@ -46,6 +46,7 @@ class Predictor(BasePredictor):
         # self.pipeline.load_lora_weights(adapter_id)
         # self.pipeline.fuse_lora()
         self.pipeline.enable_model_cpu_offload()
+        self.pipeline.enable_xformers_memory_efficient_attention()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(

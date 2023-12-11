@@ -17,6 +17,7 @@ build:
     - "wget"
     - "numpy"
     - "opencv-python"
+    - "xformers"
   run:
     - "pip install --upgrade pip"
     - "rm ~/.cache/pip -rf"
