@@ -104,6 +104,7 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            w, h = resize_(image)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
@@ -116,8 +117,8 @@ class Predictor(BasePredictor):
                                   control_guidance_start=control_guidance_start,
                                   control_guidance_end=control_guidance_end,
                                   controlnet_conditioning_scale=controlnet_conditioning_scale,
-                                  width=1024,
-                                  height=1024
+                                  width=w,
+                                  height=h
                                   ).images[0]
             image.save(out_path)
             watermark_with_transparency(out_path)
@@ -130,19 +131,32 @@ def resize_(image) -> tuple[int, int]:
     w = image.width
     h = image.height
 
-    if h < 1024 and w < 1024:
-        if h % 8 == 0 and w % 8 == 0:
-            return w, h
-        w = w - (w % 8)
+    if w > h:
+        c = int(h / w)
+        h = 1024 * c
         h = h - (h % 8)
+        w = 1024
         return w, h
 
-    while True:
-        if h < 1024 and w < 1024:
-            if h % 8 == 0 and w % 8 == 0:
-                return w, h
-            w = w - (w % 8)
-            h = h - (h % 8)
-            return w, h
-        h = int(h / 2)
-        w = int(w / 2)
+    c = int(w / h)
+    w = 1024 * c
+    w = w - (w % 8)
+    h = 1024
+    return w, h
+
+    # if h < 1024 and w < 1024:
+    #     if h % 8 == 0 and w % 8 == 0:
+    #         return w, h
+    #     w = w - (w % 8)
+    #     h = h - (h % 8)
+    #     return w, h
+
+    # while True:
+    #     if h < 1024 and w < 1024:
+    #         if h % 8 == 0 and w % 8 == 0:
+    #             return w, h
+    #         w = w - (w % 8)
+    #         h = h - (h % 8)
+    #         return w, h
+    #     h = int(h / 2)
+    #     w = int(w / 2)
