@@ -105,6 +105,7 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             w, h = resize_(image)
+            print((w, h))
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
@@ -132,14 +133,14 @@ def resize_(image) -> tuple[int, int]:
     h = image.height
 
     if w > h:
-        c = int(h / w)
-        h = 1024 * c
+        c = h / w
+        h = int(1024 * c)
         h = h - (h % 8)
         w = 1024
         return w, h
 
-    c = int(w / h)
-    w = 1024 * c
+    c = w / h
+    w = int(1024 * c)
     w = w - (w % 8)
     h = 1024
     return w, h
