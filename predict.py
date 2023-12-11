@@ -35,8 +35,7 @@ class Predictor(BasePredictor):
             "lllyasviel/control_v11p_sd15_scribble",
             torch_dtype=torch.float16
         )
-        controlnet3 = ControlNetModel.from_pretrained("CrucibleAI/ControlNetMediaPipeFace", subfolder="diffusion_sd15")
-        controlnet = [controlnet1, controlnet2, controlnet3]
+        controlnet = [controlnet1, controlnet2]
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
