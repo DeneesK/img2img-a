@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, AutoencoderKL, DPMSolverMultistepScheduler
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, DPMSolverMultistepScheduler
 import torch  # noqa
 from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
 
@@ -26,7 +26,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        # adapter_id = "latent-consistency/lcm-lora-sdv1-5"
+        
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
@@ -41,6 +41,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
+        self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
