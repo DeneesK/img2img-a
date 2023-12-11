@@ -41,11 +41,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",
-                                            torch_dtype=torch.float16).to("cuda")
-        self.pipeline.vae = vae
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
-        
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -86,21 +82,7 @@ class Predictor(BasePredictor):
         control_guidance_end: float = Input(
             description="input control_guidance_start, GENERAL. The percentage of total steps at which the ControlNet stops applying.",
             default=1.0
-        ),
-        sample_size: int = Input(
-            description="Sample input size.",
-            default=32
-        ),
-        scaling_factor: float = Input(
-            description="The component-wise standard deviation of the trained latent space computed using the first batch of the training set. This is used to scale the latent space to have unit variance when training the diffusion model. The latents are scaled with the formula z = z * scaling_factor before being passed to the diffusion model. When decoding, the latents are scaled back to the original scale with the formula: z = 1 / scaling_factor * z. For more details, refer to sections 4.3.2",
-            default=0.1821
-        ),
-        force_upcast: float = Input(
-            description="""If enabled it will force the VAE to run in float32 for high image resolution pipelines, such as SD-XL. VAE
-            can be fine-tuned / trained to a lower range without loosing too much precision in which case
-            `force_upcast` can be set to `False` - see: https://huggingface.co/madebyollin/sdxl-vae-fp16-fix""",
-            default=True
-        ),
+        )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
