@@ -5,11 +5,12 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline
 import torch  # noqa
-from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector, MediapipeFaceDetector
+from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
 
 from diffusers.utils import load_image, make_image_grid  # noqa
+from watermark import watermark_with_transparency
 
 
 def disabled_safety_checker(images, clip_input):
@@ -88,15 +89,7 @@ class Predictor(BasePredictor):
         min_confidence: float = Input(
             description="input face_detect",
             default=0.1
-        ),
-        # low_threshold: int = Input(
-        #     description="input FOR CANNY",
-        #     default=100
-        # ),
-        # high_threshold: int = Input(
-        #     description="input FOR CANNY",
-        #     default=200
-        # )
+        )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
@@ -104,13 +97,11 @@ class Predictor(BasePredictor):
             image = load_image(str(image))
             processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             processor2: PidiNetDetector = HEDdetector.from_pretrained('lllyasviel/Annotators')
-            processor3: MediapipeFaceDetector = MediapipeFaceDetector()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image = processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image2 = processor2(image, scribble=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            control_image3 = processor3(image, min_confidence=min_confidence, detect_resolution=1024)
             if not seed:
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
@@ -119,15 +110,13 @@ class Predictor(BasePredictor):
             image = image.resize(size)
             control_image = control_image.resize(size)
             control_image2 = control_image2.resize(size)
-            control_image3 = control_image3.resize(size)
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=image,
                                   control_image=[control_image,
-                                                 control_image2,
-                                                 control_image3],
+                                                 control_image2],
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
@@ -136,10 +125,8 @@ class Predictor(BasePredictor):
                                   control_guidance_end=control_guidance_end,
                                   controlnet_conditioning_scale=controlnet_conditioning_scale
                                   ).images[0]
-            make_image_grid([image,
-                             control_image,
-                             control_image2,
-                             control_image3], rows=1, cols=4).save(out_path)
+            image.save(out_path)
+            watermark_with_transparency(out_path)
             return out_path
         except Exception as ex:
             print(ex)
