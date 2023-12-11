@@ -20,4 +20,4 @@ def watermark_with_transparency(input_image_path,
     transparent.save(input_image_path)
 
 
-# watermark_with_transparency('output (10).png')
+watermark_with_transparency('output (10).png')
