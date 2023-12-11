@@ -41,8 +41,8 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse").to("cuda")
-        self.pipeline.vae = vae
+        # vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16).to("cuda")
+        # self.pipeline.vae = vae
         # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
         # self.pipeline.load_lora_weights(adapter_id)
         # self.pipeline.fuse_lora()
@@ -137,16 +137,16 @@ def resize_(image) -> tuple[int, int]:
     if w > h:
         c = h / w
         h = int(1024 * c)
-        # if h < 800:
-        #     h += int(h * 0.1)
+        if h < 800:
+            h += int(h * 0.1)
         h = h - (h % 8)
         w = 1024
         return w, h
 
     c = w / h
     w = int(1024 * c)
-    # if w < 800:
-    #     w += int(w * 0.1)
+    if w < 800:
+        w += int(w * 0.1)
     w = w - (w % 8)
     h = 1024
     return w, h
