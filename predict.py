@@ -85,10 +85,6 @@ class Predictor(BasePredictor):
         control_guidance_end: float = Input(
             description="input control_guidance_start, GENERAL. The percentage of total steps at which the ControlNet stops applying.",
             default=1.0
-        ),
-        min_confidence: float = Input(
-            description="input face_detect",
-            default=0.1
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -106,10 +102,6 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
-            size = resize_(image)
-            image = image.resize(size)
-            control_image = control_image.resize(size)
-            control_image2 = control_image2.resize(size)
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             image = self.pipeline(prompt=prompt,
