@@ -123,7 +123,9 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   control_guidance_start=control_guidance_start,
                                   control_guidance_end=control_guidance_end,
-                                  controlnet_conditioning_scale=controlnet_conditioning_scale
+                                  controlnet_conditioning_scale=controlnet_conditioning_scale,
+                                  width=size[0],
+                                  height=size[1]
                                   ).images[0]
             image.save(out_path)
             watermark_with_transparency(out_path)
