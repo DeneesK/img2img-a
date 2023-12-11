@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, ConsistencyDecoderVAE
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline
 import torch  # noqa
 from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
 
@@ -36,12 +36,10 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
-        vae = ConsistencyDecoderVAE.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
-            controlnet=controlnet,
-            vae=vae
+            controlnet=controlnet
         )
         # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
         # self.pipeline.load_lora_weights(adapter_id)
