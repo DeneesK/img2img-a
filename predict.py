@@ -135,12 +135,16 @@ def resize_(image) -> tuple[int, int]:
     if w > h:
         c = h / w
         h = int(1024 * c)
+        if h < 870:
+            h += h * 0.1
         h = h - (h % 8)
         w = 1024
         return w, h
 
     c = w / h
     w = int(1024 * c)
+    if w < 870:
+        w += w * 0.1
     w = w - (w % 8)
     h = 1024
     return w, h
