@@ -107,7 +107,7 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             self.pipeline.safety_checker = disabled_safety_checker
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            w, h = (1024, 1024)
+            w, h = resize_(image)
             print((w, h))
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
