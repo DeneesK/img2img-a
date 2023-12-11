@@ -36,7 +36,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
-        vae = ConsistencyDecoderVAE("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16)
+        vae = ConsistencyDecoderVAE.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
