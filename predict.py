@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, ConsistencyDecoderVAE
 import torch  # noqa
 from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
 
@@ -36,10 +36,12 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
+        vae = ConsistencyDecoderVAE.from_pretrained("stabilityai/sd-vae-ft-mse-original", torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetImg2ImgPipeline.from_single_file(
             "dream.safetensors",
             torch_dtype=torch.float16, use_safetensors=True,
-            controlnet=controlnet
+            controlnet=controlnet,
+            vae=vae
         )
         # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
         # self.pipeline.load_lora_weights(adapter_id)
@@ -135,16 +137,12 @@ def resize_(image) -> tuple[int, int]:
     if w > h:
         c = h / w
         h = int(1024 * c)
-        if h < 870:
-            h += h * 0.1
         h = h - (h % 8)
         w = 1024
         return w, h
 
     c = w / h
     w = int(1024 * c)
-    if w < 870:
-        w += w * 0.1
     w = w - (w % 8)
     h = 1024
     return w, h
