@@ -41,8 +41,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        # vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16).to("cuda")
-        # self.pipeline.vae = vae
+        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",
+                                            torch_dtype=torch.float16).to("cuda")
+        self.pipeline.vae = vae
         # self.pipeline.scheduler = LCMScheduler.from_config(self.pipeline.scheduler.config)
         # self.pipeline.load_lora_weights(adapter_id)
         # self.pipeline.fuse_lora()
