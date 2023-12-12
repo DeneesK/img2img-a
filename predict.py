@@ -26,7 +26,6 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
@@ -41,6 +40,8 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
+        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+        self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
         self.pipeline.enable_model_cpu_offload()
@@ -52,7 +53,7 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="input prompt",
                             default='A photo of a person, (((2D anime style)), colourful), (anime screencap, ghibli, mappa, anime style), (clear face), detailed'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='((3D)), render, ((watercolour, blurry)), ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), (fused fingers), (too many fingers), (((long neck)))'),  # noqa
+                                     default='((3D)), render, ((watercolour, blurry)), ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), (fused fingers), (too many fingers), (((long neck))), (fat, obese, overweight, plump)'),  # noqa
         seed: int = Input(description="input seed",
                           default=0),
         num_inference_steps: int = Input(
@@ -61,11 +62,11 @@ class Predictor(BasePredictor):
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
-            default=7
+            default=6
         ),
         strength: float = Input(
             description="input strength",
-            default=0.6
+            default=0.55
         ),
         controlnet_conditioning_scale: float = Input(
             description="""input controlnet_conditioning_scale, GENERAL,
@@ -89,12 +90,11 @@ class Predictor(BasePredictor):
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
             image = load_image(str(image))
-            processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-            processor2: PidiNetDetector = HEDdetector.from_pretrained('lllyasviel/Annotators')
+
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            control_image = processor(image, hand_and_face=True)
+            control_image = self.processor(image, hand_and_face=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            control_image2 = processor2(image, scribble=True)
+            control_image2 = self.processor2(image, scribble=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             if not seed:
                 seed = random.randint(0, 99999)
