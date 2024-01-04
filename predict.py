@@ -39,7 +39,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        self.processor = OpenposeDetector.from_pretrained('./ControlNet')
+        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         # self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
