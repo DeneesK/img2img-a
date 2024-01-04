@@ -132,7 +132,7 @@ class Predictor(BasePredictor):
                 [image, control_image, control_image2],
                 rows=1, cols=3
             )
-            grid.save(grid)
+            grid.save(out_path)
             return out_path
         except Exception as ex:
             print(ex)
