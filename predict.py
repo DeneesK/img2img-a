@@ -10,7 +10,6 @@ import torch  # noqa
 from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
 
 from diffusers.utils import load_image, make_image_grid  # noqa
-from watermark import watermark_with_transparency
 
 
 def disabled_safety_checker(images, clip_input):
@@ -42,7 +41,7 @@ class Predictor(BasePredictor):
         )
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
-        self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
+        # self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
@@ -51,22 +50,30 @@ class Predictor(BasePredictor):
         self,
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt",
-                            default='A photo of a person, (((2D anime style)), colourful), (anime screencap, ghibli, mappa, anime style), (clear face), detailed'),
+                            default=''),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='((3D)), render, ((watercolour, blurry)), ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), (fused fingers), (too many fingers), (((long neck))), (fat, obese, overweight, plump)'),  # noqa
+                                     default=''),  # noqa
         seed: int = Input(description="input seed",
-                          default=0),
+                          default=0,
+                          ge=0,
+                          le=10_000_000),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=61
+            default=61,
+            ge=0,
+            le=100
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
-            default=6
+            default=6,
+            ge=0,
+            le=10
         ),
         strength: float = Input(
             description="input strength",
-            default=0.55
+            default=0.55,
+            ge=0,
+            le=0.99
         ),
         controlnet_conditioning_scale: float = Input(
             description="""input controlnet_conditioning_scale, GENERAL,
@@ -119,8 +126,13 @@ class Predictor(BasePredictor):
                                   width=w,
                                   height=h
                                   ).images[0]
-            image.save(out_path)
-            watermark_with_transparency(out_path)
+            # image.save(out_path)
+            # watermark_with_transparency(out_path)
+            grid = make_image_grid(
+                [image, control_image, control_image2],
+                rows=1, cols=3
+            )
+            grid.save(grid)
             return out_path
         except Exception as ex:
             print(ex)
