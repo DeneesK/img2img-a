@@ -5,9 +5,9 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, DPMSolverMultistepScheduler
+from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, DPMSolverMultistepScheduler  # noqa
 import torch  # noqa
-from controlnet_aux import OpenposeDetector, PidiNetDetector, HEDdetector
+from controlnet_aux import OpenposeDetector, HEDdetector  # noqa
 
 from diffusers.utils import load_image, make_image_grid  # noqa
 
@@ -26,11 +26,11 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         controlnet1 = ControlNetModel.from_pretrained(
-            "lllyasviel/control_v11p_sd15_openpose",
+            "./control_v11p_sd15_openpose",
             torch_dtype=torch.float16
             )
         controlnet2 = ControlNetModel.from_pretrained(
-            "lllyasviel/control_v11p_sd15_scribble",
+            "./control_v11p_sd15_scribble",
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
@@ -39,7 +39,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16, use_safetensors=True,
             controlnet=controlnet
         )
-        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+        self.processor = OpenposeDetector.from_pretrained('./ControlNet')
         self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         # self.pipeline.load_lora_weights('./', weight_name='animemix_v3_offset.safetensors')
         self.pipeline.scheduler = DPMSolverMultistepScheduler.from_config(self.pipeline.scheduler.config)
@@ -52,7 +52,7 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="input prompt",
                             default=''),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default=''),  # noqa
+                                     default=''),
         seed: int = Input(description="input seed",
                           default=0,
                           ge=0,
